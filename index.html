@@ -10,157 +10,304 @@
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
     <link rel="icon" type="image/png" href="logo_iisep.ico" id="dynamicFavicon">
     
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6; /* Fondo gris suave estándar */
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            min-height: 100vh;
         }
 
-        /* Input Clean Style - Soluciona la superposición */
-        .input-clean {
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+        }
+
+        .input-modern {
             width: 100%;
-            height: 48px; /* Altura fija para evitar colapsos */
-            padding-left: 2.75rem; /* Espacio seguro para el icono */
+            height: 48px;
+            padding-left: 2.75rem;
             padding-right: 1rem;
             background-color: #ffffff;
-            border: 1px solid #d1d5db;
-            border-radius: 0.5rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
             font-size: 0.95rem;
             color: #1f2937;
-            transition: border-color 0.2s, box-shadow 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
         }
 
-        .input-clean:focus {
+        .input-modern:focus {
             outline: none;
-            border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15), 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transform: translateY(-1px);
         }
 
-        /* Input sin icono (para celdas simples) */
-        .input-clean.no-icon {
+        .input-modern.no-icon {
             padding-left: 1rem;
             text-align: center;
         }
 
-        .label-clean {
+        .label-modern {
             display: block;
             font-size: 0.875rem;
             font-weight: 600;
-            color: #374151;
+            color: #475569;
             margin-bottom: 0.5rem;
-        }
-
-        /* Cards sólidas en lugar de cristal */
-        .card-clean {
-            background-color: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 0.75rem;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            margin-bottom: 1.5rem;
-        }
-
-        .card-header {
-            background-color: #f9fafb;
-            border-bottom: 1px solid #e5e7eb;
-            padding: 1rem 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
+            letter-spacing: -0.01em;
         }
 
         .step-badge {
-            background-color: #eff6ff;
-            color: #1d4ed8;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
             font-weight: 700;
-            padding: 0.25rem 0.75rem;
-            border-radius: 0.375rem;
-            font-size: 0.875rem;
-            border: 1px solid #dbeafe;
+            padding: 0.35rem 0.85rem;
+            border-radius: 0.5rem;
+            font-size: 0.8rem;
+            box-shadow: 0 2px 4px rgba(29, 78, 216, 0.2);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 28px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: white;
+            font-weight: 600;
+            padding: 0.875rem 1.5rem;
+            border-radius: 0.75rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            background: linear-gradient(135deg, #334155 0%, #1e293b 100%);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .radio-card {
+            padding: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 0.75rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: white;
+        }
+
+        .radio-card:hover {
+            border-color: #cbd5e1;
+            transform: translateY(-2px);
+        }
+
+        .radio-card.selected {
+            border-color: #3b82f6;
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2);
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.375rem 0.875rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: white;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .status-dot.connected {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+        }
+
+        .status-dot.disconnected {
+            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+        }
+
+        .preview-badge {
+            padding: 0.375rem 0.875rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .upload-area {
+            border: 2px dashed #cbd5e1;
+            border-radius: 1rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-area:hover {
+            border-color: #3b82f6;
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            transform: translateY(-2px);
+        }
+
+        .upload-area::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 30% 20%, rgba(59, 130, 246, 0.05) 0%, transparent 50%);
+        }
+
+        .modal-overlay {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+        }
+
+        .animate-spin-slow {
+            animation: spin 1.5s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .shadow-soft {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
         }
     </style>
 </head>
 <body class="min-h-screen p-4 md:p-8">
 
-    <header class="max-w-6xl mx-auto mb-8 flex justify-between items-center">
-        <div>
-            <h1 class="text-2xl font-bold text-gray-900">Generador de Certificados</h1>
-            <p class="text-gray-500 text-sm">Panel de Control IISEP</p>
-        </div>
-        
-        <div class="flex items-center gap-4">
-            <div id="systemStatus" class="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-gray-100 text-gray-500 text-xs font-medium">
-                <div id="statusDot" class="w-2 h-2 rounded-full bg-gray-400"></div>
-                <span id="statusText">Desconectado</span>
+    <header class="max-w-6xl mx-auto mb-10">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center shadow-lg">
+                        <i class="fas fa-certificate text-white text-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight">Generador de Certificados</h1>
+                        <p class="text-gray-500 text-sm md:text-base">Panel de Control IISEP</p>
+                    </div>
+                </div>
             </div>
-            <button onclick="openCredentialsModal()" class="text-blue-600 hover:text-blue-800 font-medium text-sm flex items-center gap-1">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                Configurar
-            </button>
+            
+            <div class="flex items-center gap-4">
+                <div id="systemStatus" class="status-indicator">
+                    <div id="statusDot" class="status-dot disconnected"></div>
+                    <span id="statusText" class="text-gray-700">Desconectado</span>
+                </div>
+                <button onclick="openCredentialsModal()" class="btn-primary !py-2 !px-4 !text-sm !bg-gradient-to-r !from-blue-600 !to-blue-700">
+                    <i class="fas fa-cog text-sm"></i>
+                    Configurar
+                </button>
+            </div>
         </div>
     </header>
 
     <main class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
         
-        <div class="lg:col-span-4 space-y-6">
+        <div class="lg:col-span-4 space-y-8">
             
-            <div class="card-clean">
-                <div class="card-header">
-                    <span class="step-badge">1</span>
-                    <h2 class="font-bold text-gray-800">Datos del Alumno</h2>
+            <!-- Card 1: Datos del Alumno -->
+            <div class="glass-card rounded-xl overflow-hidden shadow-soft">
+                <div class="px-6 py-5 bg-gradient-to-r from-gray-50 to-white border-b border-gray-100">
+                    <div class="flex items-center gap-3">
+                        <span class="step-badge">1</span>
+                        <div>
+                            <h2 class="font-bold text-gray-800 text-lg">Datos del Alumno</h2>
+                            <p class="text-gray-500 text-xs">Información personal del estudiante</p>
+                        </div>
+                    </div>
                 </div>
                 <div class="p-6">
                     <form id="certForm" onsubmit="return false;">
-                        <div class="mb-5">
-                            <label class="label-clean">Nombre Completo</label>
+                        <div class="mb-6">
+                            <label class="label-modern">Nombre Completo</label>
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                                    <i class="fas fa-user text-gray-400"></i>
                                 </div>
-                                <input type="text" id="nombre_completo" required placeholder="Ej: JUAN PÉREZ" class="input-clean uppercase">
+                                <input type="text" id="nombre_completo" required placeholder="Ej: JUAN PÉREZ" class="input-modern uppercase">
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-2 gap-4">
+                        <div class="grid grid-cols-2 gap-5">
                             <div>
-                                <label class="label-clean">DNI / CE</label>
+                                <label class="label-modern">DNI / CE</label>
                                 <div class="relative">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/></svg>
+                                        <i class="fas fa-id-card text-gray-400"></i>
                                     </div>
-                                    <input type="text" id="dni" required maxlength="15" placeholder="12345678" class="input-clean">
+                                    <input type="text" id="dni" required maxlength="15" placeholder="12345678" class="input-modern">
                                 </div>
                             </div>
                             <div>
-                                <label class="label-clean">Código (Opcional)</label>
-                                <input type="text" id="codigo_interno" placeholder="---" class="input-clean no-icon">
+                                <label class="label-modern">Código (Opcional)</label>
+                                <input type="text" id="codigo_interno" placeholder="---" class="input-modern no-icon">
                             </div>
                         </div>
                     </form>
                 </div>
             </div>
 
-            <div class="card-clean">
-                <div class="card-header">
-                    <span class="step-badge">2</span>
-                    <h2 class="font-bold text-gray-800">Información Académica</h2>
+            <!-- Card 2: Información Académica -->
+            <div class="glass-card rounded-xl overflow-hidden shadow-soft">
+                <div class="px-6 py-5 bg-gradient-to-r from-gray-50 to-white border-b border-gray-100">
+                    <div class="flex items-center gap-3">
+                        <span class="step-badge">2</span>
+                        <div>
+                            <h2 class="font-bold text-gray-800 text-lg">Información Académica</h2>
+                            <p class="text-gray-500 text-xs">Detalles del estudio realizado</p>
+                        </div>
+                    </div>
                 </div>
                 <div class="p-6">
-                    <div class="mb-5">
-                        <label class="label-clean mb-2">Modalidad de Estudio</label>
+                    <div class="mb-6">
+                        <label class="label-modern mb-3">Modalidad de Estudio</label>
                         <div class="grid grid-cols-2 gap-3">
                             <label class="cursor-pointer">
                                 <input type="radio" name="tipoEstudio" value="carrera" onchange="toggleEstudioInputs()" class="peer sr-only">
-                                <div class="py-3 px-4 rounded-lg border border-gray-200 text-center hover:bg-gray-50 peer-checked:bg-blue-50 peer-checked:border-blue-500 peer-checked:text-blue-700 transition-all">
-                                    <span class="text-sm font-semibold">Carrera</span>
+                                <div class="radio-card peer-checked:selected">
+                                    <i class="fas fa-graduation-cap text-lg mb-2 text-gray-600 peer-checked:text-blue-600"></i>
+                                    <span class="text-sm font-semibold block">Carrera</span>
                                 </div>
                             </label>
                             <label class="cursor-pointer">
                                 <input type="radio" name="tipoEstudio" value="modulo" checked onchange="toggleEstudioInputs()" class="peer sr-only">
-                                <div class="py-3 px-4 rounded-lg border border-gray-200 text-center hover:bg-gray-50 peer-checked:bg-blue-50 peer-checked:border-blue-500 peer-checked:text-blue-700 transition-all">
-                                    <span class="text-sm font-semibold">Módulo/Curso</span>
+                                <div class="radio-card peer-checked:selected">
+                                    <i class="fas fa-book text-lg mb-2 text-gray-600 peer-checked:text-blue-600"></i>
+                                    <span class="text-sm font-semibold block">Módulo/Curso</span>
                                 </div>
                             </label>
                         </div>
@@ -177,134 +324,216 @@
                         <option value="Excel Empresarial">
                     </datalist>
 
-                    <div class="space-y-4">
+                    <div class="space-y-5">
                         <div id="carreraGroup" class="hidden">
-                            <label class="label-clean">Nombre de la Carrera</label>
-                            <input type="text" id="carrera" list="listaCarreras" placeholder="Seleccione..." class="input-clean no-icon text-left pl-4">
+                            <label class="label-modern">Nombre de la Carrera</label>
+                            <div class="relative">
+                                <i class="fas fa-university absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                <input type="text" id="carrera" list="listaCarreras" placeholder="Seleccione..." class="input-modern pl-10">
+                            </div>
                         </div>
                         
                         <div id="moduloGroup">
-                            <label class="label-clean">Nombre del Módulo</label>
-                            <input type="text" id="modulo_curso" list="listaModulos" placeholder="Seleccione..." class="input-clean no-icon text-left pl-4">
+                            <label class="label-modern">Nombre del Módulo</label>
+                            <div class="relative">
+                                <i class="fas fa-book-open absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                <input type="text" id="modulo_curso" list="listaModulos" placeholder="Seleccione..." class="input-modern pl-10">
+                            </div>
                         </div>
                     </div>
 
-                    <div class="mt-6 pt-6 border-t border-gray-100 grid grid-cols-1 gap-5">
+                    <div class="mt-7 pt-6 border-t border-gray-100 space-y-5">
                         <div>
-                            <div class="flex justify-between items-center mb-1">
-                                <label class="label-clean !mb-0">Fecha de Emisión</label>
-                                <button type="button" onclick="toggleDateFormat()" class="text-xs text-blue-600 font-medium hover:underline">Cambiar Formato</button>
+                            <div class="flex justify-between items-center mb-2">
+                                <label class="label-modern !mb-0">Fecha de Emisión</label>
+                                <button type="button" onclick="toggleDateFormat()" class="text-xs text-blue-600 font-medium hover:text-blue-800 transition-colors flex items-center gap-1">
+                                    <i class="fas fa-exchange-alt text-xs"></i>
+                                    Cambiar Formato
+                                </button>
                             </div>
-                            <input type="text" id="fecha_emision_texto" class="input-clean no-icon text-left pl-4">
+                            <div class="relative">
+                                <i class="fas fa-calendar absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                <input type="text" id="fecha_emision_texto" class="input-modern pl-10">
+                            </div>
                         </div>
                         
                         <div>
-                            <label class="label-clean">Firma Autoridad</label>
+                            <label class="label-modern">Firma Autoridad</label>
                             <div class="relative">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
-                                </div>
-                                <input type="text" id="firma_autoridad" value="Ing. Neiser Aguilar Cabrera" class="input-clean">
+                                <i class="fas fa-signature absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                <input type="text" id="firma_autoridad" value="Ing. Neiser Aguilar Cabrera" class="input-modern">
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="card-clean">
-                <div class="card-header justify-between">
-                    <div class="flex items-center gap-2">
-                        <span class="step-badge">3</span>
-                        <h2 class="font-bold text-gray-800">Documento Base</h2>
+            <!-- Card 3: Documento Base -->
+            <div class="glass-card rounded-xl overflow-hidden shadow-soft">
+                <div class="px-6 py-5 bg-gradient-to-r from-gray-50 to-white border-b border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <span class="step-badge">3</span>
+                            <div>
+                                <h2 class="font-bold text-gray-800 text-lg">Documento Base</h2>
+                                <p class="text-gray-500 text-xs">Sube el PDF y configura el QR</p>
+                            </div>
+                        </div>
+                        <button onclick="toggleConfig()" class="text-gray-400 hover:text-blue-600 p-2 rounded-full hover:bg-blue-50 transition-colors" title="Ajustes QR">
+                            <i class="fas fa-sliders-h text-sm"></i>
+                        </button>
                     </div>
-                    <button onclick="toggleConfig()" class="text-gray-400 hover:text-blue-600 p-1 rounded" title="Ajustes QR">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                    </button>
                 </div>
                 <div class="p-6">
-                    <div class="relative w-full h-32 border-2 border-dashed border-gray-300 rounded-lg hover:bg-gray-50 hover:border-blue-400 transition-colors flex flex-col items-center justify-center cursor-pointer mb-4 group">
+                    <div class="upload-area w-full h-36 mb-5 flex flex-col items-center justify-center cursor-pointer group">
                         <input type="file" id="pdfInput" accept="application/pdf" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" onchange="handleFileSelect(event)">
-                        <svg class="w-8 h-8 text-gray-400 group-hover:text-blue-500 mb-2 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
-                        <p class="text-sm text-gray-500 font-medium group-hover:text-blue-600">Clic para cargar PDF</p>
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                            <i class="fas fa-file-pdf text-white text-xl"></i>
+                        </div>
+                        <p class="text-sm text-gray-600 font-medium group-hover:text-blue-600">Clic para cargar PDF</p>
+                        <p class="text-xs text-gray-400 mt-1">Archivos .pdf hasta 10MB</p>
                     </div>
                     
-                    <p id="fileNameDisplay" class="hidden text-center text-xs font-semibold text-green-600 bg-green-50 py-2 px-3 rounded mb-4 truncate"></p>
-
-                    <div id="configPanel" class="hidden bg-gray-50 rounded-lg border border-gray-200 p-4 mb-4 text-sm">
-                        <div class="flex justify-between items-center mb-3 pb-2 border-b border-gray-200">
-                            <h3 class="font-bold text-gray-700 text-xs uppercase">Posición QR</h3>
-                            <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" id="whiteBg" class="sr-only peer" checked>
-                                <div class="w-7 h-4 bg-gray-300 rounded-full peer peer-checked:bg-blue-600 transition-colors relative">
-                                    <div class="absolute left-0.5 top-0.5 w-3 h-3 bg-white rounded-full transition-transform peer-checked:translate-x-3"></div>
-                                </div>
-                                <span class="text-xs text-gray-600">Fondo Blanco</span>
-                            </label>
-                        </div>
-                        <div class="grid grid-cols-4 gap-2">
-                            <div><label class="block text-[10px] font-bold text-gray-400 text-center mb-1">EJE X</label><input type="number" id="qrX" value="50" class="input-clean text-center !px-1 !h-8 !text-xs"></div>
-                            <div><label class="block text-[10px] font-bold text-gray-400 text-center mb-1">EJE Y</label><input type="number" id="qrY" value="50" class="input-clean text-center !px-1 !h-8 !text-xs"></div>
-                            <div><label class="block text-[10px] font-bold text-gray-400 text-center mb-1">TAMAÑO</label><input type="number" id="qrSize" value="100" class="input-clean text-center !px-1 !h-8 !text-xs"></div>
-                            <div><label class="block text-[10px] font-bold text-gray-400 text-center mb-1">PÁGINA</label><input type="number" id="qrPage" value="0" class="input-clean text-center !px-1 !h-8 !text-xs"></div>
+                    <div id="fileNameDisplay" class="hidden mb-5">
+                        <div class="flex items-center gap-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-3 border border-green-100">
+                            <i class="fas fa-check-circle text-green-500 text-lg"></i>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-semibold text-green-800 truncate">Archivo listo</p>
+                                <p class="text-xs text-green-600 truncate" id="fileNameText"></p>
+                            </div>
                         </div>
                     </div>
 
-                    <div id="statusMessage" class="hidden mb-4 p-3 rounded text-sm font-medium"></div>
+                    <div id="configPanel" class="hidden mb-6 bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-200 p-5 shadow-inner">
+                        <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-200">
+                            <h3 class="font-bold text-gray-700 text-sm uppercase tracking-wider flex items-center gap-2">
+                                <i class="fas fa-qrcode text-blue-500"></i>
+                                Configuración QR
+                            </h3>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" id="whiteBg" class="sr-only peer" checked>
+                                <div class="w-9 h-5 bg-gray-300 rounded-full peer peer-checked:bg-blue-600 transition-colors relative">
+                                    <div class="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-4 shadow-sm"></div>
+                                </div>
+                                <span class="text-xs text-gray-600 font-medium">Fondo Blanco</span>
+                            </label>
+                        </div>
+                        <div class="grid grid-cols-4 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 mb-2 text-center">Posición X</label>
+                                <input type="number" id="qrX" value="50" class="input-modern text-center !px-2 !h-10 !text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 mb-2 text-center">Posición Y</label>
+                                <input type="number" id="qrY" value="50" class="input-modern text-center !px-2 !h-10 !text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 mb-2 text-center">Tamaño</label>
+                                <input type="number" id="qrSize" value="100" class="input-modern text-center !px-2 !h-10 !text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 mb-2 text-center">Página</label>
+                                <input type="number" id="qrPage" value="0" class="input-modern text-center !px-2 !h-10 !text-sm">
+                            </div>
+                        </div>
+                    </div>
 
-                    <button id="generateBtn" onclick="generateCertificate()" disabled class="w-full bg-gray-800 text-white font-bold py-3 px-4 rounded-lg hover:bg-gray-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                    <div id="statusMessage" class="hidden mb-5 rounded-lg p-4 text-sm font-medium"></div>
+
+                    <button id="generateBtn" onclick="generateCertificate()" disabled class="btn-primary w-full">
                         <span>Generar Certificado</span>
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                        <i class="fas fa-arrow-right"></i>
                     </button>
                 </div>
             </div>
         </div>
 
+        <!-- Panel de Vista Previa -->
         <div class="lg:col-span-8 h-full">
-            <div class="card-clean h-full flex flex-col" style="min-height: 600px;">
-                <div class="card-header justify-between">
-                    <h2 class="font-bold text-gray-800">Vista Previa</h2>
-                    <span id="previewBadge" class="px-2 py-1 bg-gray-100 text-gray-600 text-xs font-bold rounded uppercase">Esperando Archivo</span>
+            <div class="glass-card rounded-xl overflow-hidden h-full flex flex-col shadow-soft" style="min-height: 600px;">
+                <div class="px-6 py-5 bg-gradient-to-r from-gray-50 to-white border-b border-gray-100">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                        <div>
+                            <h2 class="font-bold text-gray-800 text-lg">Vista Previa</h2>
+                            <p class="text-gray-500 text-xs">Visualización del documento final</p>
+                        </div>
+                        <span id="previewBadge" class="preview-badge bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700">Esperando Archivo</span>
+                    </div>
                 </div>
                 
-                <div class="flex-grow bg-gray-200 p-4 sm:p-8 flex items-center justify-center overflow-hidden relative">
-                    <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(#000 1px, transparent 1px); background-size: 20px 20px;"></div>
+                <div class="flex-grow bg-gradient-to-br from-gray-100 to-gray-200 p-6 flex items-center justify-center overflow-hidden relative">
+                    <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(#3b82f6 1px, transparent 1px); background-size: 40px 40px;"></div>
                     
-                    <div id="emptyState" class="text-center relative z-10">
-                        <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
-                            <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    <div id="emptyState" class="text-center relative z-10 max-w-md mx-auto">
+                        <div class="w-24 h-24 rounded-full bg-gradient-to-br from-white to-gray-50 flex items-center justify-center mx-auto mb-6 shadow-lg">
+                            <i class="fas fa-file-alt text-4xl text-gray-300"></i>
                         </div>
-                        <p class="text-gray-500 font-medium">Sube el documento PDF para previsualizar</p>
+                        <h3 class="text-xl font-bold text-gray-700 mb-3">Sin documento cargado</h3>
+                        <p class="text-gray-500 mb-6">Sube un archivo PDF para comenzar a generar certificados</p>
+                        <div class="flex items-center justify-center gap-2 text-gray-400">
+                            <i class="fas fa-info-circle"></i>
+                            <p class="text-sm">Formato compatible: PDF (hasta 10MB)</p>
+                        </div>
                     </div>
                     
-                    <iframe id="pdfPreview" class="hidden w-full h-full rounded shadow-lg border-none bg-white relative z-10" style="height: 100%; min-height: 600px;"></iframe>
+                    <iframe id="pdfPreview" class="hidden w-full h-full rounded-lg shadow-xl border-2 border-white bg-white relative z-10" style="height: 100%; min-height: 600px;"></iframe>
                 </div>
 
-                <div id="actionsPanel" class="hidden border-t border-gray-100 p-4 bg-white flex gap-3">
+                <div id="actionsPanel" class="hidden border-t border-gray-100 p-5 bg-white flex flex-col sm:flex-row gap-4">
                     <a id="downloadLink" href="#" download class="flex-1">
-                        <button class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                            Descargar
+                        <button class="btn-primary w-full !bg-gradient-to-r !from-green-600 !to-emerald-700 hover:!from-green-700 hover:!to-emerald-800">
+                            <i class="fas fa-download"></i>
+                            Descargar Certificado
                         </button>
                     </a>
-                    <button onclick="resetApp()" class="px-4 py-2.5 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50">
-                        Nuevo
+                    <button onclick="resetApp()" class="px-5 py-3 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
+                        <i class="fas fa-plus"></i>
+                        Nuevo Certificado
                     </button>
                 </div>
             </div>
         </div>
     </main>
 
-    <div id="credentialsModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-            <h3 class="text-lg font-bold text-gray-900 mb-4">Configuración de Conexión</h3>
+    <!-- Modal de Credenciales -->
+    <div id="credentialsModal" class="fixed inset-0 modal-overlay hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 glass-card">
+            <div class="flex items-center gap-3 mb-5">
+                <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                    <i class="fas fa-database text-white"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900">Configuración de Conexión</h3>
+            </div>
             <div class="space-y-4 mb-6">
-                <div><label class="label-clean">URL Supabase</label><input type="text" id="inputUrl" class="input-clean h-10 px-3 text-sm"></div>
-                <div><label class="label-clean">Anon Key</label><input type="password" id="inputKey" class="input-clean h-10 px-3 text-sm"></div>
-                <div><label class="label-clean">URL Validador</label><input type="text" id="inputWeb" class="input-clean h-10 px-3 text-sm"></div>
+                <div>
+                    <label class="label-modern">URL Supabase</label>
+                    <div class="relative">
+                        <i class="fas fa-link absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" id="inputUrl" class="input-modern pl-10" placeholder="https://your-project.supabase.co">
+                    </div>
+                </div>
+                <div>
+                    <label class="label-modern">Anon Key</label>
+                    <div class="relative">
+                        <i class="fas fa-key absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        <input type="password" id="inputKey" class="input-modern pl-10" placeholder="Tu clave anónima">
+                    </div>
+                </div>
+                <div>
+                    <label class="label-modern">URL Validador</label>
+                    <div class="relative">
+                        <i class="fas fa-globe absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" id="inputWeb" class="input-modern pl-10" placeholder="https://validar-certificado.com">
+                    </div>
+                </div>
             </div>
             <div class="flex justify-end gap-3">
-                <button onclick="closeCredentialsModal()" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded">Cancelar</button>
-                <button onclick="saveCredentials()" class="px-4 py-2 bg-blue-600 text-white rounded font-medium hover:bg-blue-700">Guardar</button>
+                <button onclick="closeCredentialsModal()" class="px-4 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg font-medium transition-colors">
+                    Cancelar
+                </button>
+                <button onclick="saveCredentials()" class="px-4 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg font-medium hover:from-blue-700 hover:to-blue-800 transition-all shadow-md">
+                    Guardar Configuración
+                </button>
             </div>
         </div>
     </div>
@@ -343,23 +572,126 @@
                 day: 'numeric' 
             });
         }
-        
+
+        function detectDateFormat(fechaStr) {
+            // Verificar si es formato largo (contiene mes en texto)
+            const mesesLargos = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 
+                                'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+            
+            const fechaMin = fechaStr.toLowerCase();
+            const esFormatoLargo = mesesLargos.some(mes => fechaMin.includes(mes));
+            
+            // Verificar si es formato corto (dd/mm/yy o dd/mm/yyyy)
+            const regexCorto = /^(\d{1,2})\/(\d{1,2})\/(\d{2}|\d{4})$/;
+            const esFormatoCorto = regexCorto.test(fechaStr);
+            
+            if (esFormatoLargo) return 'largo';
+            if (esFormatoCorto) return 'corto';
+            return 'desconocido';
+        }
+
+        function convertirFormatoFecha(fechaStr, formatoOrigen) {
+            let fechaObj;
+            
+            try {
+                if (formatoOrigen === 'largo') {
+                    // Convertir de formato largo a corto
+                    // Primero normalizamos la fecha (reemplazar " de " por espacios simples)
+                    const fechaNormalizada = fechaStr.replace(/ de /g, ' ').replace(/,/g, '');
+                    fechaObj = new Date(fechaNormalizada);
+                    
+                    // Si no se puede parsear, intentamos con el formato español
+                    if (isNaN(fechaObj.getTime())) {
+                        const partes = fechaNormalizada.split(' ');
+                        if (partes.length >= 3) {
+                            const dia = parseInt(partes[0]);
+                            const mes = convertirMesATexto(partes[1]);
+                            const año = parseInt(partes[2]);
+                            fechaObj = new Date(año, mes, dia);
+                        }
+                    }
+                    
+                    // Formato corto: dd/mm/yy
+                    const dia = String(fechaObj.getDate()).padStart(2, '0');
+                    const mes = String(fechaObj.getMonth() + 1).padStart(2, '0');
+                    const año = String(fechaObj.getFullYear()).slice(-2);
+                    return `${dia}/${mes}/${año}`;
+                    
+                } else if (formatoOrigen === 'corto') {
+                    // Convertir de formato corto a largo
+                    const partes = fechaStr.split('/');
+                    let dia = parseInt(partes[0]);
+                    let mes = parseInt(partes[1]) - 1;
+                    let año = parseInt(partes[2]);
+                    
+                    // Manejar años de 2 dígitos
+                    if (año < 100) {
+                        año = año < 50 ? 2000 + año : 1900 + año;
+                    }
+                    
+                    fechaObj = new Date(año, mes, dia);
+                    
+                    // Formato largo: "día de mes de año"
+                    const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
+                    return fechaObj.toLocaleDateString('es-PE', opciones);
+                }
+            } catch (error) {
+                console.error('Error al convertir fecha:', error);
+            }
+            
+            return fechaStr; // Si hay error, devolver la fecha original
+        }
+
+        function convertirMesATexto(mesTexto) {
+            const meses = {
+                'enero': 0, 'febrero': 1, 'marzo': 2, 'abril': 3, 'mayo': 4, 'junio': 5,
+                'julio': 6, 'agosto': 7, 'septiembre': 8, 'octubre': 9, 'noviembre': 10, 'diciembre': 11
+            };
+            return meses[mesTexto.toLowerCase()] || 0;
+        }
+
         function toggleDateFormat() {
             const el = document.getElementById('fecha_emision_texto');
-            if (el.value.includes('/')) {
-                el.value = new Date().toLocaleDateString('es-PE', { 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
-                });
-            } else {
-                const d = new Date();
-                const day = String(d.getDate()).padStart(2, '0');
-                const month = String(d.getMonth() + 1).padStart(2, '0');
-                const year = String(d.getFullYear()).slice(-2);
-                el.value = `${day}/${month}/${year}`;
+            const fechaActual = el.value.trim();
+            
+            if (!fechaActual) {
+                // Si está vacío, establecer fecha predeterminada
+                setDefaultDateLong();
+                return;
+            }
+            
+            // Detectar el formato actual
+            const formatoActual = detectDateFormat(fechaActual);
+            
+            if (formatoActual === 'desconocido') {
+                // Si no reconocemos el formato, mostrar mensaje y usar predeterminada
+                showStatus('error', 'Formato de fecha no reconocido. Usando fecha actual.');
+                setDefaultDateLong();
+                return;
+            }
+            
+            // Convertir al formato alternativo
+            const nuevoFormato = formatoActual === 'largo' ? 'corto' : 'largo';
+            const fechaConvertida = convertirFormatoFecha(fechaActual, formatoActual);
+            
+            if (fechaConvertida && fechaConvertida !== fechaActual) {
+                el.value = fechaConvertida;
+                
+                // Mostrar notificación del cambio
+                const mensaje = formatoActual === 'largo' 
+                    ? 'Cambiado a formato corto (dd/mm/yy)' 
+                    : 'Cambiado a formato largo (día de mes de año)';
+                showStatus('info', `✓ ${mensaje}`);
             }
         }
+
+        // También puedes agregar validación en tiempo real para ayudar al usuario
+        document.getElementById('fecha_emision_texto').addEventListener('blur', function() {
+            const fecha = this.value.trim();
+            if (fecha && detectDateFormat(fecha) === 'desconocido') {
+                showStatus('warning', '⚠ Formato de fecha no reconocido. Use "dd/mm/aa" o "día de mes de año"');
+            }
+        });
 
         // --- STUDY TYPE HANDLING ---
         function toggleEstudioInputs() {
@@ -439,14 +771,21 @@
             const text = document.getElementById('statusText');
             
             if (isConnected) {
-                dot.classList.remove('bg-gray-400');
-                dot.classList.add('bg-green-500');
+                dot.classList.remove('disconnected');
+                dot.classList.add('connected');
                 text.textContent = "Conectado";
+                text.classList.remove('text-gray-700');
                 text.classList.add('text-green-700');
+                status.classList.remove('bg-white');
+                status.classList.add('bg-green-50');
             } else {
-                dot.classList.remove('bg-green-500');
-                dot.classList.add('bg-gray-400');
+                dot.classList.remove('connected');
+                dot.classList.add('disconnected');
                 text.textContent = "Sin Conexión";
+                text.classList.remove('text-green-700');
+                text.classList.add('text-gray-700');
+                status.classList.remove('bg-green-50');
+                status.classList.add('bg-white');
             }
         }
 
@@ -460,12 +799,13 @@
             if (file && file.type === 'application/pdf') {
                 selectedFile = file;
                 const fileNameDisplay = document.getElementById('fileNameDisplay');
-                fileNameDisplay.textContent = file.name;
+                const fileNameText = document.getElementById('fileNameText');
+                fileNameText.textContent = file.name;
                 fileNameDisplay.classList.remove('hidden');
                 
                 const badge = document.getElementById('previewBadge');
                 badge.textContent = "Documento Listo";
-                badge.className = "px-2 py-1 bg-green-100 text-green-700 text-xs font-bold rounded uppercase";
+                badge.className = "preview-badge bg-gradient-to-r from-green-100 to-emerald-200 text-emerald-800";
                 
                 document.getElementById('generateBtn').disabled = false;
                 
@@ -481,18 +821,30 @@
         function showStatus(type, message) {
             const el = document.getElementById('statusMessage');
             el.textContent = message;
-            el.className = 'mb-4 p-3 rounded text-sm font-medium ' + (type === 'error' ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700');
+            
+            const clases = {
+                'error': 'mb-5 rounded-lg p-4 text-sm font-medium bg-gradient-to-r from-red-50 to-red-100 text-red-800 border border-red-200',
+                'success': 'mb-5 rounded-lg p-4 text-sm font-medium bg-gradient-to-r from-green-50 to-emerald-100 text-emerald-800 border border-emerald-200',
+                'info': 'mb-5 rounded-lg p-4 text-sm font-medium bg-gradient-to-r from-blue-50 to-blue-100 text-blue-800 border border-blue-200',
+                'warning': 'mb-5 rounded-lg p-4 text-sm font-medium bg-gradient-to-r from-yellow-50 to-amber-100 text-amber-800 border border-amber-200'
+            };
+            
+            el.className = clases[type] || clases.info;
             el.classList.remove('hidden');
-            if(type === 'info') setTimeout(() => el.classList.add('hidden'), 5000);
+            
+            // Auto-ocultar solo para mensajes informativos y de advertencia
+            if (type === 'info' || type === 'warning') {
+                setTimeout(() => el.classList.add('hidden'), 4000);
+            }
         }
         
         function toggleLoading(isLoading) {
             const btn = document.getElementById('generateBtn');
             if (isLoading) {
-                btn.innerHTML = `<span class="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full mr-2"></span> Procesando...`;
+                btn.innerHTML = `<div class="animate-spin-slow h-5 w-5 border-2 border-white border-t-transparent rounded-full mr-2"></div> Procesando...`;
                 btn.disabled = true;
             } else {
-                btn.innerHTML = `<span>Generar Certificado</span><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>`;
+                btn.innerHTML = `<span>Generar Certificado</span><i class="fas fa-arrow-right"></i>`;
                 btn.disabled = false;
             }
         }
@@ -510,6 +862,10 @@
             setDefaultDateLong();
             document.querySelector('input[name="tipoEstudio"][value="modulo"]').checked = true;
             toggleEstudioInputs();
+            
+            const badge = document.getElementById('previewBadge');
+            badge.textContent = "Esperando Archivo";
+            badge.className = "preview-badge bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700";
         }
 
         // --- GENERATE ---
@@ -602,18 +958,18 @@
                 
                 const badge = document.getElementById('previewBadge');
                 badge.textContent = "CERTIFICADO GENERADO";
-                badge.className = "px-2 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded uppercase";
+                badge.className = "preview-badge bg-gradient-to-r from-blue-100 to-indigo-200 text-blue-800";
                 
                 const downloadLink = document.getElementById('downloadLink');
                 downloadLink.href = url;
                 downloadLink.download = `Certificado_${dni}.pdf`;
                 
                 document.getElementById('actionsPanel').classList.remove('hidden');
-                showStatus('success', 'Certificado generado correctamente');
+                showStatus('success', '✓ Certificado generado correctamente');
 
             } catch (err) {
                 console.error(err);
-                showStatus('error', err.message || 'Error al generar');
+                showStatus('error', '✗ ' + (err.message || 'Error al generar el certificado'));
             } finally {
                 toggleLoading(false);
             }
