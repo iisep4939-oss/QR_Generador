@@ -3,297 +3,308 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generador de Certificados IISEP</title>
-    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3135/3135810.png" id="dynamicFavicon">
-    
-    <!-- Tailwind CSS -->
+    <title>Generador de Certificados - IISEP</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Librerías Externas -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    <link rel="icon" type="image/png" href="logo_iisep.ico" id="dynamicFavicon">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .loader {
-            border: 3px solid #f3f3f3;
-            border-radius: 50%;
-            border-top: 3px solid #3b82f6;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* Fondo gris suave estándar */
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+
+        /* Input Clean Style - Soluciona la superposición */
+        .input-clean {
+            width: 100%;
+            height: 48px; /* Altura fija para evitar colapsos */
+            padding-left: 2.75rem; /* Espacio seguro para el icono */
+            padding-right: 1rem;
+            background-color: #ffffff;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 0.95rem;
+            color: #1f2937;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
-        .modal-overlay {
-            background-color: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(4px);
+
+        .input-clean:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        /* Input sin icono (para celdas simples) */
+        .input-clean.no-icon {
+            padding-left: 1rem;
+            text-align: center;
+        }
+
+        .label-clean {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Cards sólidas en lugar de cristal */
+        .card-clean {
+            background-color: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            background-color: #f9fafb;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .step-badge {
+            background-color: #eff6ff;
+            color: #1d4ed8;
+            font-weight: 700;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            border: 1px solid #dbeafe;
         }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800 min-h-screen">
+<body class="min-h-screen p-4 md:p-8">
 
-    <div class="max-w-[1400px] mx-auto p-4 md:p-6 space-y-6">
+    <header class="max-w-6xl mx-auto mb-8 flex justify-between items-center">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Generador de Certificados</h1>
+            <p class="text-gray-500 text-sm">Panel de Control IISEP</p>
+        </div>
         
-        <!-- Header -->
-        <header class="bg-blue-900 text-white p-5 rounded-xl shadow-lg flex flex-col md:flex-row justify-between items-center gap-4">
-            <div class="flex items-center gap-4">
-                <!-- Logo Placeholder / Uploaded Logo -->
-                <div class="w-12 h-12 bg-white rounded-lg flex items-center justify-center overflow-hidden border-2 border-blue-400 relative group cursor-pointer" onclick="document.getElementById('faviconInput').click()" title="Cambiar Logo/Favicon">
-                    <img id="logoPreview" src="" class="w-full h-full object-contain hidden">
-                    <svg id="logoPlaceholder" class="text-blue-900" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                    <div class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        <svg class="text-white w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                    </div>
-                    <input type="file" id="faviconInput" accept="image/*" class="hidden" onchange="updateFavicon(event)">
-                </div>
-                <div>
-                    <h1 class="text-2xl md:text-3xl font-bold tracking-tight">Generador IISEP</h1>
-                    <p class="text-blue-200 text-sm md:text-base opacity-90">Emisión de Certificados</p>
-                </div>
+        <div class="flex items-center gap-4">
+            <div id="systemStatus" class="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-gray-100 text-gray-500 text-xs font-medium">
+                <div id="statusDot" class="w-2 h-2 rounded-full bg-gray-400"></div>
+                <span id="statusText">Desconectado</span>
             </div>
-            <div class="flex items-center gap-3">
-                <button onclick="openCredentialsModal()" class="bg-blue-800 hover:bg-blue-700 text-blue-100 p-2 rounded-lg transition-colors border border-blue-700 flex items-center gap-2 text-sm font-medium">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
-                    Configurar API
-                </button>
-                <div id="systemStatus" class="bg-white/10 px-3 py-1.5 rounded-lg backdrop-blur-sm border border-white/20 flex items-center gap-2">
-                    <div id="statusDot" class="w-2.5 h-2.5 bg-red-400 rounded-full shadow-sm"></div>
-                    <span id="statusText" class="text-xs font-mono text-blue-100 font-semibold">OFFLINE</span>
-                </div>
-            </div>
-        </header>
+            <button onclick="openCredentialsModal()" class="text-blue-600 hover:text-blue-800 font-medium text-sm flex items-center gap-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                Configurar
+            </button>
+        </div>
+    </header>
 
-        <!-- Main Layout -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+    <main class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <div class="lg:col-span-4 space-y-6">
             
-            <!-- Columna Izquierda: Formulario -->
-            <div class="lg:col-span-5 space-y-6">
-                
-                <!-- 1. Datos del Estudiante -->
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                    <div class="flex items-center gap-2 mb-5 border-b pb-3">
-                        <div class="bg-blue-100 p-1.5 rounded-md text-blue-600">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                        </div>
-                        <h2 class="text-lg font-bold text-slate-700">Datos del Certificado</h2>
-                    </div>
-
-                    <form id="certForm" class="space-y-4">
-                        <!-- Nombre -->
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Nombre Completo</label>
-                            <input type="text" id="nombre_completo" required placeholder="Ej: JUAN PEREZ" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all uppercase bg-slate-50 focus:bg-white">
+            <div class="card-clean">
+                <div class="card-header">
+                    <span class="step-badge">1</span>
+                    <h2 class="font-bold text-gray-800">Datos del Alumno</h2>
+                </div>
+                <div class="p-6">
+                    <form id="certForm" onsubmit="return false;">
+                        <div class="mb-5">
+                            <label class="label-clean">Nombre Completo</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                                </div>
+                                <input type="text" id="nombre_completo" required placeholder="Ej: JUAN PÉREZ" class="input-clean uppercase">
+                            </div>
                         </div>
 
-                        <!-- DNI & Código -->
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">DNI</label>
-                                <input type="text" id="dni" required maxlength="15" placeholder="Ej: 77146876" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-mono">
+                                <label class="label-clean">DNI / CE</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/></svg>
+                                    </div>
+                                    <input type="text" id="dni" required maxlength="15" placeholder="12345678" class="input-clean">
+                                </div>
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Cód. Interno</label>
-                                <input type="text" id="codigo_interno" placeholder="Opcional" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-                            </div>
-                        </div>
-
-                        <!-- Selector de Tipo de Estudio -->
-                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200">
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Tipo de Certificado</label>
-                            <div class="flex gap-4 mb-3">
-                                <label class="flex items-center gap-2 cursor-pointer">
-                                    <input type="radio" name="tipoEstudio" value="carrera" onchange="toggleEstudioInputs()" class="text-blue-600 focus:ring-blue-500">
-                                    <span class="text-sm">Carrera Técnica</span>
-                                </label>
-                                <label class="flex items-center gap-2 cursor-pointer">
-                                    <input type="radio" name="tipoEstudio" value="modulo" checked onchange="toggleEstudioInputs()" class="text-blue-600 focus:ring-blue-500">
-                                    <span class="text-sm">Curso / Módulo</span>
-                                </label>
-                            </div>
-
-                            <datalist id="listaCarreras">
-                                <option value="Computación"></option>
-                                <option value="Logística y Almacenes"></option>
-                                <option value="Gastronomía"></option>
-                                <option value="Instalaciones Electrotécnicas"></option>
-                                <option value="Cosmetología"></option>
-                            </datalist>
-
-                            <datalist id="listaModulos">
-                                <option value="Ofimática"></option>
-                                <option value="Diseño Gráfico"></option>
-                                <option value="Ensamblaje de PC"></option>
-                                <option value="Barber Shop"></option>
-                                <option value="Inglés"></option>
-                                <option value="Uñas Acrilicas"></option>
-                            </datalist>
-
-                            <!-- Carrera (Condicional) -->
-                            <div id="carreraGroup" class="mb-2 hidden">
-                                <input type="text" id="carrera" list="listaCarreras" placeholder="Nombre de la Carrera" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-                            </div>
-
-                            <!-- Modulo (Condicional) -->
-                            <div id="moduloGroup" class="mb-2">
-                                <input type="text" id="modulo_curso" list="listaModulos" placeholder="Nombre del Módulo o Curso" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-                            </div>
-                        </div>
-
-                        <!-- Fecha & Firma -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1 flex justify-between">
-                                    Fecha Emisión
-                                    <button type="button" onclick="toggleDateFormat()" class="text-[10px] text-blue-600 hover:underline">Cambiar Formato</button>
-                                </label>
-                                <input type="text" id="fecha_emision_texto" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm">
-                                <p class="text-[10px] text-slate-400 mt-1">Se guardará tal cual en BD (lo verá el validador).</p>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Firma</label>
-                                <input type="text" id="firma_autoridad" value="Ing. Neiser Aguilar Cabrera" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+                                <label class="label-clean">Código (Opcional)</label>
+                                <input type="text" id="codigo_interno" placeholder="---" class="input-clean no-icon">
                             </div>
                         </div>
                     </form>
                 </div>
+            </div>
 
-                <!-- 2. Carga y Configuración -->
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-2">
-                            <div class="bg-blue-100 p-1.5 rounded-md text-blue-600">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
-                            </div>
-                            <h2 class="text-lg font-bold text-slate-700">Documento Base</h2>
-                        </div>
-                        <button onclick="toggleConfig()" class="text-xs font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-full transition-colors flex items-center gap-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> 
-                            Ajustar QR
-                        </button>
-                    </div>
-
-                    <div class="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center bg-slate-50 relative hover:bg-slate-100 transition-colors group">
-                        <input type="file" id="pdfInput" accept="application/pdf" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" onchange="handleFileSelect(event)">
-                        <div id="fileLabelContent" class="flex flex-col items-center gap-2 pointer-events-none transition-transform group-hover:scale-105">
-                            <div class="w-10 h-10 bg-white text-blue-600 rounded-full flex items-center justify-center shadow-sm">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                            </div>
-                            <span class="font-medium text-slate-700 text-sm">Cargar PDF Diploma</span>
-                        </div>
-                    </div>
-                    <p id="fileNameDisplay" class="text-center text-xs font-bold text-green-600 mt-2 hidden bg-green-50 py-1 rounded"></p>
-
-                    <!-- Configuración Avanzada QR -->
-                    <div id="configPanel" class="hidden mt-4 p-4 bg-slate-50 rounded-lg border border-slate-200 shadow-inner">
-                        <div class="flex items-center justify-between mb-3">
-                            <h3 class="text-xs font-bold text-slate-500 uppercase">Configuración del QR</h3>
-                            <!-- Checkbox Fondo Blanco -->
-                            <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" id="whiteBg" class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500" checked>
-                                <span class="text-xs font-medium text-slate-700">Fondo Blanco</span>
+            <div class="card-clean">
+                <div class="card-header">
+                    <span class="step-badge">2</span>
+                    <h2 class="font-bold text-gray-800">Información Académica</h2>
+                </div>
+                <div class="p-6">
+                    <div class="mb-5">
+                        <label class="label-clean mb-2">Modalidad de Estudio</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="cursor-pointer">
+                                <input type="radio" name="tipoEstudio" value="carrera" onchange="toggleEstudioInputs()" class="peer sr-only">
+                                <div class="py-3 px-4 rounded-lg border border-gray-200 text-center hover:bg-gray-50 peer-checked:bg-blue-50 peer-checked:border-blue-500 peer-checked:text-blue-700 transition-all">
+                                    <span class="text-sm font-semibold">Carrera</span>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="tipoEstudio" value="modulo" checked onchange="toggleEstudioInputs()" class="peer sr-only">
+                                <div class="py-3 px-4 rounded-lg border border-gray-200 text-center hover:bg-gray-50 peer-checked:bg-blue-50 peer-checked:border-blue-500 peer-checked:text-blue-700 transition-all">
+                                    <span class="text-sm font-semibold">Módulo/Curso</span>
+                                </div>
                             </label>
                         </div>
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                            <div>
-                                <label class="text-[10px] uppercase font-bold text-slate-400">Posición X</label>
-                                <input type="number" id="qrX" value="50" class="w-full mt-1 px-2 py-1 border rounded text-sm text-center">
-                            </div>
-                            <div>
-                                <label class="text-[10px] uppercase font-bold text-slate-400">Posición Y</label>
-                                <input type="number" id="qrY" value="50" class="w-full mt-1 px-2 py-1 border rounded text-sm text-center">
-                            </div>
-                            <div>
-                                <label class="text-[10px] uppercase font-bold text-slate-400">Tamaño</label>
-                                <input type="number" id="qrSize" value="100" class="w-full mt-1 px-2 py-1 border rounded text-sm text-center">
-                            </div>
-                            <div>
-                                <label class="text-[10px] uppercase font-bold text-slate-400">Página (0=1ra)</label>
-                                <input type="number" id="qrPage" value="0" class="w-full mt-1 px-2 py-1 border rounded text-sm text-center">
-                            </div>
-                        </div>
-                        <p class="text-[10px] text-slate-400 mt-2">Nota: Y=0 es la parte inferior de la hoja.</p>
                     </div>
 
-                    <div id="statusMessage" class="hidden mt-4 p-3 rounded-lg text-sm font-medium flex items-center gap-2"></div>
+                    <datalist id="listaCarreras">
+                        <option value="Computación e Informática">
+                        <option value="Administración de Empresas">
+                        <option value="Contabilidad">
+                    </datalist>
+                    <datalist id="listaModulos">
+                        <option value="Ofimática Profesional">
+                        <option value="Diseño Gráfico">
+                        <option value="Excel Empresarial">
+                    </datalist>
 
-                    <button id="generateBtn" onclick="generateCertificate()" class="w-full mt-4 py-3 px-4 rounded-lg font-bold text-white shadow-md flex items-center justify-center gap-2 transition-all bg-slate-300 text-slate-500 cursor-not-allowed" disabled>
-                        <span>Registrar y Generar</span>
+                    <div class="space-y-4">
+                        <div id="carreraGroup" class="hidden">
+                            <label class="label-clean">Nombre de la Carrera</label>
+                            <input type="text" id="carrera" list="listaCarreras" placeholder="Seleccione..." class="input-clean no-icon text-left pl-4">
+                        </div>
+                        
+                        <div id="moduloGroup">
+                            <label class="label-clean">Nombre del Módulo</label>
+                            <input type="text" id="modulo_curso" list="listaModulos" placeholder="Seleccione..." class="input-clean no-icon text-left pl-4">
+                        </div>
+                    </div>
+
+                    <div class="mt-6 pt-6 border-t border-gray-100 grid grid-cols-1 gap-5">
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="label-clean !mb-0">Fecha de Emisión</label>
+                                <button type="button" onclick="toggleDateFormat()" class="text-xs text-blue-600 font-medium hover:underline">Cambiar Formato</button>
+                            </div>
+                            <input type="text" id="fecha_emision_texto" class="input-clean no-icon text-left pl-4">
+                        </div>
+                        
+                        <div>
+                            <label class="label-clean">Firma Autoridad</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                                </div>
+                                <input type="text" id="firma_autoridad" value="Ing. Neiser Aguilar Cabrera" class="input-clean">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-clean">
+                <div class="card-header justify-between">
+                    <div class="flex items-center gap-2">
+                        <span class="step-badge">3</span>
+                        <h2 class="font-bold text-gray-800">Documento Base</h2>
+                    </div>
+                    <button onclick="toggleConfig()" class="text-gray-400 hover:text-blue-600 p-1 rounded" title="Ajustes QR">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    </button>
+                </div>
+                <div class="p-6">
+                    <div class="relative w-full h-32 border-2 border-dashed border-gray-300 rounded-lg hover:bg-gray-50 hover:border-blue-400 transition-colors flex flex-col items-center justify-center cursor-pointer mb-4 group">
+                        <input type="file" id="pdfInput" accept="application/pdf" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" onchange="handleFileSelect(event)">
+                        <svg class="w-8 h-8 text-gray-400 group-hover:text-blue-500 mb-2 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                        <p class="text-sm text-gray-500 font-medium group-hover:text-blue-600">Clic para cargar PDF</p>
+                    </div>
+                    
+                    <p id="fileNameDisplay" class="hidden text-center text-xs font-semibold text-green-600 bg-green-50 py-2 px-3 rounded mb-4 truncate"></p>
+
+                    <div id="configPanel" class="hidden bg-gray-50 rounded-lg border border-gray-200 p-4 mb-4 text-sm">
+                        <div class="flex justify-between items-center mb-3 pb-2 border-b border-gray-200">
+                            <h3 class="font-bold text-gray-700 text-xs uppercase">Posición QR</h3>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" id="whiteBg" class="sr-only peer" checked>
+                                <div class="w-7 h-4 bg-gray-300 rounded-full peer peer-checked:bg-blue-600 transition-colors relative">
+                                    <div class="absolute left-0.5 top-0.5 w-3 h-3 bg-white rounded-full transition-transform peer-checked:translate-x-3"></div>
+                                </div>
+                                <span class="text-xs text-gray-600">Fondo Blanco</span>
+                            </label>
+                        </div>
+                        <div class="grid grid-cols-4 gap-2">
+                            <div><label class="block text-[10px] font-bold text-gray-400 text-center mb-1">EJE X</label><input type="number" id="qrX" value="50" class="input-clean text-center !px-1 !h-8 !text-xs"></div>
+                            <div><label class="block text-[10px] font-bold text-gray-400 text-center mb-1">EJE Y</label><input type="number" id="qrY" value="50" class="input-clean text-center !px-1 !h-8 !text-xs"></div>
+                            <div><label class="block text-[10px] font-bold text-gray-400 text-center mb-1">TAMAÑO</label><input type="number" id="qrSize" value="100" class="input-clean text-center !px-1 !h-8 !text-xs"></div>
+                            <div><label class="block text-[10px] font-bold text-gray-400 text-center mb-1">PÁGINA</label><input type="number" id="qrPage" value="0" class="input-clean text-center !px-1 !h-8 !text-xs"></div>
+                        </div>
+                    </div>
+
+                    <div id="statusMessage" class="hidden mb-4 p-3 rounded text-sm font-medium"></div>
+
+                    <button id="generateBtn" onclick="generateCertificate()" disabled class="w-full bg-gray-800 text-white font-bold py-3 px-4 rounded-lg hover:bg-gray-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                        <span>Generar Certificado</span>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                     </button>
                 </div>
             </div>
+        </div>
 
-            <!-- Columna Derecha: Vista Previa -->
-            <div class="lg:col-span-7 h-full min-h-[600px] flex flex-col">
-                <div class="bg-white p-1 rounded-xl shadow-sm border border-slate-200 h-full flex flex-col">
-                    <!-- Header Vista Previa -->
-                    <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 rounded-t-xl">
-                        <h2 class="text-sm font-bold text-slate-600 flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-                            Vista Previa del Documento
-                        </h2>
-                        <span id="previewBadge" class="text-xs px-2 py-1 bg-slate-200 rounded text-slate-500 font-mono">Esperando archivo...</span>
+        <div class="lg:col-span-8 h-full">
+            <div class="card-clean h-full flex flex-col" style="min-height: 600px;">
+                <div class="card-header justify-between">
+                    <h2 class="font-bold text-gray-800">Vista Previa</h2>
+                    <span id="previewBadge" class="px-2 py-1 bg-gray-100 text-gray-600 text-xs font-bold rounded uppercase">Esperando Archivo</span>
+                </div>
+                
+                <div class="flex-grow bg-gray-200 p-4 sm:p-8 flex items-center justify-center overflow-hidden relative">
+                    <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(#000 1px, transparent 1px); background-size: 20px 20px;"></div>
+                    
+                    <div id="emptyState" class="text-center relative z-10">
+                        <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
+                            <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        </div>
+                        <p class="text-gray-500 font-medium">Sube el documento PDF para previsualizar</p>
                     </div>
                     
-                    <!-- Contenedor iframe -->
-                    <div class="flex-grow bg-slate-200/50 relative overflow-hidden flex items-center justify-center p-4">
-                        <div id="emptyState" class="text-center text-slate-400">
-                            <svg class="mx-auto mb-2 opacity-50" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
-                            <p class="text-sm">Sube un PDF para previsualizarlo aquí</p>
-                        </div>
-                        <iframe id="pdfPreview" class="w-full h-full absolute inset-0 hidden border-none bg-white shadow-lg"></iframe>
-                    </div>
+                    <iframe id="pdfPreview" class="hidden w-full h-full rounded shadow-lg border-none bg-white relative z-10" style="height: 100%; min-height: 600px;"></iframe>
+                </div>
 
-                    <!-- Panel Acciones Finales -->
-                    <div id="actionsPanel" class="p-4 bg-white border-t border-slate-100 hidden animate-in slide-in-from-bottom-2">
-                        <div class="flex gap-3">
-                            <a id="downloadLink" href="#" download="certificado.pdf" class="flex-1">
-                                <button class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 px-4 rounded-lg shadow-sm flex items-center justify-center gap-2 transition-colors">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                                    Descargar PDF Final
-                                </button>
-                            </a>
-                            <button onclick="resetApp()" class="px-4 py-2.5 border border-slate-300 text-slate-600 hover:bg-slate-50 font-semibold rounded-lg transition-colors flex items-center gap-2" title="Limpiar todo">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-                            </button>
-                        </div>
-                    </div>
+                <div id="actionsPanel" class="hidden border-t border-gray-100 p-4 bg-white flex gap-3">
+                    <a id="downloadLink" href="#" download class="flex-1">
+                        <button class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                            Descargar
+                        </button>
+                    </a>
+                    <button onclick="resetApp()" class="px-4 py-2.5 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50">
+                        Nuevo
+                    </button>
                 </div>
             </div>
-
         </div>
-    </div>
+    </main>
 
-    <!-- MODAL DE CREDENCIALES (Igual que antes) -->
-    <div id="credentialsModal" class="fixed inset-0 modal-overlay hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 animate-in fade-in slide-in-from-bottom-4">
-            <h2 class="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
-                <svg class="text-blue-600" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
-                Configurar API
-            </h2>
-            <p class="text-sm text-slate-500 mb-4">Ingresa tus credenciales de Supabase. Se guardan localmente en tu navegador.</p>
-            
-            <div class="space-y-3">
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">SUPABASE URL</label>
-                    <input type="text" id="inputUrl" placeholder="https://xyz.supabase.co" class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">SUPABASE ANON KEY</label>
-                    <input type="password" id="inputKey" placeholder="eyJhb..." class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 mb-1">WEB URL (Vercel)</label>
-                    <input type="text" id="inputWeb" placeholder="https://tu-sitio.vercel.app/" class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
-                </div>
+    <div id="credentialsModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+            <h3 class="text-lg font-bold text-gray-900 mb-4">Configuración de Conexión</h3>
+            <div class="space-y-4 mb-6">
+                <div><label class="label-clean">URL Supabase</label><input type="text" id="inputUrl" class="input-clean h-10 px-3 text-sm"></div>
+                <div><label class="label-clean">Anon Key</label><input type="password" id="inputKey" class="input-clean h-10 px-3 text-sm"></div>
+                <div><label class="label-clean">URL Validador</label><input type="text" id="inputWeb" class="input-clean h-10 px-3 text-sm"></div>
             </div>
-
-            <div class="mt-6 flex gap-3 justify-end">
-                <button onclick="closeCredentialsModal()" class="px-4 py-2 text-sm text-slate-500 hover:bg-slate-100 rounded-lg">Cancelar</button>
-                <button onclick="saveCredentials()" class="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">Guardar y Conectar</button>
+            <div class="flex justify-end gap-3">
+                <button onclick="closeCredentialsModal()" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded">Cancelar</button>
+                <button onclick="saveCredentials()" class="px-4 py-2 bg-blue-600 text-white rounded font-medium hover:bg-blue-700">Guardar</button>
             </div>
         </div>
     </div>
@@ -304,29 +315,44 @@
         let selectedFile = null;
         let WEB_URL = "";
 
-        // Al cargar
+        // On Load
         window.onload = function() {
             loadCredentials();
             // Favicon
             const savedFavicon = localStorage.getItem('custom_favicon');
-            if(savedFavicon) setFavicon(savedFavicon);
+            if(savedFavicon) {
+                let link = document.querySelector("link[rel~='icon']");
+                if (!link) { 
+                    link = document.createElement('link'); 
+                    link.rel = 'icon'; 
+                    document.head.appendChild(link); 
+                }
+                link.href = savedFavicon;
+            }
             
-            // Fecha y UI inicial
+            // Initial setup
             setDefaultDateLong();
             toggleEstudioInputs();
         };
 
-        // --- MANEJO DE FECHA ---
+        // --- DATE HANDLING ---
         function setDefaultDateLong() {
-            document.getElementById('fecha_emision_texto').value = new Date().toLocaleDateString('es-PE', { year: 'numeric', month: 'long', day: 'numeric' });
+            document.getElementById('fecha_emision_texto').value = new Date().toLocaleDateString('es-PE', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
         }
+        
         function toggleDateFormat() {
             const el = document.getElementById('fecha_emision_texto');
             if (el.value.includes('/')) {
-                // Si parece corta, cambiar a larga
-                el.value = new Date().toLocaleDateString('es-PE', { year: 'numeric', month: 'long', day: 'numeric' });
+                el.value = new Date().toLocaleDateString('es-PE', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
             } else {
-                // Si parece larga, cambiar a corta
                 const d = new Date();
                 const day = String(d.getDate()).padStart(2, '0');
                 const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -335,7 +361,7 @@
             }
         }
 
-        // --- MANEJO DE TIPO ESTUDIO (CARRERA VS MODULO) ---
+        // --- STUDY TYPE HANDLING ---
         function toggleEstudioInputs() {
             const tipo = document.querySelector('input[name="tipoEstudio"]:checked').value;
             const carreraGroup = document.getElementById('carreraGroup');
@@ -344,8 +370,7 @@
             if (tipo === 'carrera') {
                 carreraGroup.classList.remove('hidden');
                 moduloGroup.classList.add('hidden');
-                // Limpiar el otro para evitar confusiones
-                document.getElementById('modulo_curso').value = ''; 
+                document.getElementById('modulo_curso').value = '';
             } else {
                 carreraGroup.classList.add('hidden');
                 moduloGroup.classList.remove('hidden');
@@ -353,7 +378,7 @@
             }
         }
 
-        // --- CREDENCIALES ---
+        // --- CREDENTIALS ---
         function loadCredentials() {
             const storedUrl = localStorage.getItem('supabase_url');
             const storedKey = localStorage.getItem('supabase_key');
@@ -368,18 +393,28 @@
                 updateStatus(false);
             }
         }
+        
         function openCredentialsModal() {
             document.getElementById('credentialsModal').classList.remove('hidden');
             document.getElementById('inputUrl').value = localStorage.getItem('supabase_url') || '';
             document.getElementById('inputKey').value = localStorage.getItem('supabase_key') || '';
             document.getElementById('inputWeb').value = localStorage.getItem('web_url') || '';
         }
-        function closeCredentialsModal() { document.getElementById('credentialsModal').classList.add('hidden'); }
+        
+        function closeCredentialsModal() { 
+            document.getElementById('credentialsModal').classList.add('hidden'); 
+        }
+        
         function saveCredentials() {
             const url = document.getElementById('inputUrl').value.trim();
             const key = document.getElementById('inputKey').value.trim();
             const web = document.getElementById('inputWeb').value.trim();
-            if (!url || !key) { alert("URL y KEY son obligatorias."); return; }
+            
+            if (!url || !key) { 
+                showStatus('error', 'Faltan credenciales');
+                return; 
+            }
+            
             localStorage.setItem('supabase_url', url);
             localStorage.setItem('supabase_key', key);
             localStorage.setItem('web_url', web);
@@ -388,137 +423,122 @@
             closeCredentialsModal();
             updateStatus(true);
         }
+        
         function initSupabase(url, key) {
             try {
                 supabase = window.supabase.createClient(url, key);
             } catch (error) {
-                console.error(error);
+                console.error('Error', error);
                 updateStatus(false);
             }
         }
+        
         function updateStatus(isConnected) {
+            const status = document.getElementById('systemStatus');
             const dot = document.getElementById('statusDot');
             const text = document.getElementById('statusText');
+            
             if (isConnected) {
-                dot.classList.remove('bg-red-400'); dot.classList.add('bg-green-400'); text.textContent = "CONECTADO";
+                dot.classList.remove('bg-gray-400');
+                dot.classList.add('bg-green-500');
+                text.textContent = "Conectado";
+                text.classList.add('text-green-700');
             } else {
-                dot.classList.remove('bg-green-400'); dot.classList.add('bg-red-400'); text.textContent = "OFFLINE";
+                dot.classList.remove('bg-green-500');
+                dot.classList.add('bg-gray-400');
+                text.textContent = "Sin Conexión";
             }
         }
 
-        // --- FAVICON ---
-        function updateFavicon(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const dataUrl = e.target.result;
-                    setFavicon(dataUrl);
-                    localStorage.setItem('custom_favicon', dataUrl);
-                };
-                reader.readAsDataURL(file);
-            }
+        // --- UI FUNCTIONS ---
+        function toggleConfig() { 
+            document.getElementById('configPanel').classList.toggle('hidden'); 
         }
-        function setFavicon(url) {
-            let link = document.querySelector("link[rel~='icon']");
-            if (!link) { link = document.createElement('link'); link.rel = 'icon'; document.head.appendChild(link); }
-            link.href = url;
-            document.getElementById('logoPlaceholder').classList.add('hidden');
-            const img = document.getElementById('logoPreview');
-            img.src = url; img.classList.remove('hidden');
-        }
-
-        // --- UI ---
-        function toggleConfig() { document.getElementById('configPanel').classList.toggle('hidden'); }
+        
         function handleFileSelect(event) {
             const file = event.target.files[0];
             if (file && file.type === 'application/pdf') {
                 selectedFile = file;
-                document.getElementById('fileNameDisplay').textContent = file.name;
-                document.getElementById('fileNameDisplay').classList.remove('hidden');
-                document.getElementById('previewBadge').textContent = "Visualizando PDF Base";
-                document.getElementById('previewBadge').className = "text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded font-bold";
+                const fileNameDisplay = document.getElementById('fileNameDisplay');
+                fileNameDisplay.textContent = file.name;
+                fileNameDisplay.classList.remove('hidden');
                 
-                const btn = document.getElementById('generateBtn');
-                btn.disabled = false;
-                btn.classList.remove('bg-slate-300', 'text-slate-500', 'cursor-not-allowed');
-                btn.classList.add('bg-blue-600', 'hover:bg-blue-700', 'text-white');
-
+                const badge = document.getElementById('previewBadge');
+                badge.textContent = "Documento Listo";
+                badge.className = "px-2 py-1 bg-green-100 text-green-700 text-xs font-bold rounded uppercase";
+                
+                document.getElementById('generateBtn').disabled = false;
+                
                 const fileURL = URL.createObjectURL(file);
                 const previewFrame = document.getElementById('pdfPreview');
                 previewFrame.src = fileURL + "#toolbar=0&navpanes=0";
                 previewFrame.classList.remove('hidden');
                 document.getElementById('emptyState').classList.add('hidden');
                 document.getElementById('actionsPanel').classList.add('hidden');
-                showStatus('info', 'Documento cargado. Ajusta la posición del QR.');
             }
         }
+        
         function showStatus(type, message) {
             const el = document.getElementById('statusMessage');
-            el.className = `mt-4 p-3 rounded-lg text-sm font-medium flex items-center gap-2 ${type === 'error' ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-green-50 text-green-700 border border-green-200'}`;
             el.textContent = message;
+            el.className = 'mb-4 p-3 rounded text-sm font-medium ' + (type === 'error' ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700');
             el.classList.remove('hidden');
+            if(type === 'info') setTimeout(() => el.classList.add('hidden'), 5000);
         }
+        
         function toggleLoading(isLoading) {
             const btn = document.getElementById('generateBtn');
             if (isLoading) {
-                btn.innerHTML = '<div class="loader"></div> Registrando...';
+                btn.innerHTML = `<span class="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full mr-2"></span> Procesando...`;
                 btn.disabled = true;
             } else {
-                btn.innerHTML = '<span>Registrar y Generar</span>';
+                btn.innerHTML = `<span>Generar Certificado</span><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>`;
                 btn.disabled = false;
             }
         }
+        
         function resetApp() {
             document.getElementById('certForm').reset();
             document.getElementById('pdfInput').value = '';
             selectedFile = null;
             document.getElementById('fileNameDisplay').classList.add('hidden');
-            const btn = document.getElementById('generateBtn');
-            btn.disabled = true;
-            btn.classList.add('bg-slate-300', 'text-slate-500', 'cursor-not-allowed');
-            btn.classList.remove('bg-blue-600', 'hover:bg-blue-700', 'text-white');
+            document.getElementById('generateBtn').disabled = true;
             document.getElementById('emptyState').classList.remove('hidden');
             document.getElementById('pdfPreview').classList.add('hidden');
             document.getElementById('actionsPanel').classList.add('hidden');
             document.getElementById('statusMessage').classList.add('hidden');
-            document.getElementById('previewBadge').textContent = "Esperando archivo...";
             setDefaultDateLong();
-            // Restaurar radio por defecto
             document.querySelector('input[name="tipoEstudio"][value="modulo"]').checked = true;
             toggleEstudioInputs();
         }
 
-        // --- GENERAR ---
+        // --- GENERATE ---
         async function generateCertificate() {
             if (!selectedFile) return;
-            if (!supabase) { showStatus('error', 'Error: Sin conexión a BD.'); openCredentialsModal(); return; }
+            if (!supabase) { 
+                showStatus('error', 'Error de conexión'); 
+                openCredentialsModal(); 
+                return; 
+            }
             
             toggleLoading(true);
-            showStatus('info', 'Conectando con Supabase...');
 
             try {
-                // 1. Recoger datos
                 const nombre = document.getElementById('nombre_completo').value.toUpperCase();
                 const dni = document.getElementById('dni').value;
                 const codigo = document.getElementById('codigo_interno').value;
                 const fecha = document.getElementById('fecha_emision_texto').value;
                 const firma = document.getElementById('firma_autoridad').value;
 
-                // Lógica de Carrera vs Modulo
                 let carrera = document.getElementById('carrera').value;
                 let modulo = document.getElementById('modulo_curso').value;
                 
-                // Rellenar con guion si está vacío (para cumplir NOT NULL de la BD)
-                if (!carrera) carrera = "-";
-                if (!modulo) modulo = "-";
+                if (!carrera) carrera = null;
+                if (!modulo) modulo = null;
 
-                if(!nombre || !dni) throw new Error("Nombre y DNI son obligatorios.");
-                
-                // Validación visual para el usuario: Al menos uno debe tener valor real
-                if(carrera === "-" && modulo === "-") throw new Error("Debes especificar la Carrera o el Módulo.");
+                if(!nombre || !dni) throw new Error("Faltan datos obligatorios");
 
-                // 2. Insertar
+                // Insert DB
                 const { data, error } = await supabase
                     .from('certificados')
                     .insert([{
@@ -534,15 +554,17 @@
                     .single();
 
                 if (error) throw error;
+                
+                // QR
                 const uuid = data.uuid_publico;
                 const cleanWebUrl = WEB_URL.replace(/\/$/, "");
                 const validationLink = `${cleanWebUrl}?id=${uuid}`;
+                const qrDataUrl = await QRCode.toDataURL(validationLink, { 
+                    errorCorrectionLevel: 'H', margin: 0, width: 300, 
+                    color: { dark: '#000000', light: '#00000000' } 
+                });
 
-                // 3. QR
-                showStatus('info', 'Generando imagen QR...');
-                const qrDataUrl = await QRCode.toDataURL(validationLink, { errorCorrectionLevel: 'H', margin: 0, width: 300, color: { dark: '#000000', light: '#00000000' } });
-
-                // 4. PDF
+                // PDF Modification
                 const arrayBuffer = await selectedFile.arrayBuffer();
                 const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
                 const qrImage = await pdfDoc.embedPng(qrDataUrl);
@@ -560,30 +582,38 @@
                 const page = pages[pageIndex];
 
                 if (config.whiteBg) {
-                    page.drawRectangle({ x: config.x - 2, y: config.y - 2, width: config.size + 4, height: config.size + 4, color: PDFLib.rgb(1, 1, 1) });
+                    page.drawRectangle({ 
+                        x: config.x - 2, y: config.y - 2, 
+                        width: config.size + 4, height: config.size + 4, 
+                        color: PDFLib.rgb(1, 1, 1) 
+                    });
                 }
-                page.drawImage(qrImage, { x: config.x, y: config.y, width: config.size, height: config.size });
+                
+                page.drawImage(qrImage, { 
+                    x: config.x, y: config.y, width: config.size, height: config.size 
+                });
 
-                // 5. Final
                 const pdfBytes = await pdfDoc.save();
                 const blob = new Blob([pdfBytes], { type: 'application/pdf' });
                 const url = URL.createObjectURL(blob);
 
                 const previewFrame = document.getElementById('pdfPreview');
                 previewFrame.src = url + "#toolbar=0&navpanes=0";
-                document.getElementById('previewBadge').textContent = "CERTIFICADO GENERADO";
-                document.getElementById('previewBadge').className = "text-xs px-2 py-1 bg-green-100 text-green-700 rounded font-bold";
+                
+                const badge = document.getElementById('previewBadge');
+                badge.textContent = "CERTIFICADO GENERADO";
+                badge.className = "px-2 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded uppercase";
                 
                 const downloadLink = document.getElementById('downloadLink');
                 downloadLink.href = url;
                 downloadLink.download = `Certificado_${dni}.pdf`;
+                
                 document.getElementById('actionsPanel').classList.remove('hidden');
-
-                showStatus('success', `¡Listo! UUID: ${uuid.substring(0,8)}...`);
+                showStatus('success', 'Certificado generado correctamente');
 
             } catch (err) {
                 console.error(err);
-                showStatus('error', err.message || 'Error desconocido');
+                showStatus('error', err.message || 'Error al generar');
             } finally {
                 toggleLoading(false);
             }
